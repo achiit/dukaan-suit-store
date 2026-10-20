@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Suit Store – Ladies Suits Online</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Hind:wght@400;500&display=swap">
+<style>
+:root{--bg:#faf8f4;--ink:#1d2147;--mute:#5d6185;--card:#fff;--line:#e6e2d8;--brand:#1f2a5c;--on-brand:#fff;--gold:#f2a900;--pink:#b0245a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12142b;--ink:#f1efe8;--mute:#a9acc9;--card:#1b1e3d;--line:#2d3160;--brand:#f2a900;--on-brand:#12142b;--pink:#ff7aa8}}
+:root[data-theme="dark"]{--bg:#12142b;--ink:#f1efe8;--mute:#a9acc9;--card:#1b1e3d;--line:#2d3160;--brand:#f2a900;--on-brand:#12142b;--pink:#ff7aa8}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Hind",system-ui,sans-serif}
+h1,h2,h3,.logo{font-family:"Baloo 2","Hind",sans-serif;margin:0;line-height:1.15}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--line)}
+.logo{font-size:22px;font-weight:700;color:var(--pink)}
+button{font:inherit;cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.pill{background:var(--brand);color:var(--on-brand);border:0;border-radius:999px;padding:8px 16px;font-weight:500}
+.pill.alt{background:transparent;color:var(--ink);border:1px solid var(--line)}
+[hidden]{display:none!important}
+.hero{padding:32px 16px 20px;max-width:720px;margin:0 auto}
+.hero h1{font-size:clamp(30px,8vw,50px);font-weight:700}
+.hero p{color:var(--mute);max-width:44ch;margin:10px 0 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;padding:8px 16px 40px;max-width:960px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.ph{aspect-ratio:3/4;width:100%;object-fit:cover;display:block;background:linear-gradient(135deg,#1f2a5c 0 50%,#f2a900 50% 100%)}
+.card .b{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.card h3{font-size:17px}
+.price{font-weight:500}
+.price s{color:var(--mute);font-weight:400;margin-left:6px;font-size:14px}
+select,.field{width:100%;padding:9px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit}
+.add{margin-top:auto;background:var(--brand);color:var(--on-brand);border:0;border-radius:8px;padding:9px;font-weight:500}
+.drawer{position:fixed;inset:0;z-index:20;display:none;background:rgba(0,0,0,.45)}
+.drawer.open{display:block}
+.panel{position:absolute;right:0;top:0;bottom:0;width:min(420px,100%);background:var(--bg);padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;overflow:auto}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.row small{color:var(--mute);display:block}
+.qty button{width:28px;height:28px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.wa{display:block;text-align:center;background:#1fa855;color:#fff;border:0;border-radius:10px;padding:13px;font-weight:500;text-decoration:none}
+.empty{color:var(--mute);grid-column:1/-1}
+.thumb{width:44px;height:58px;object-fit:cover;border-radius:6px;background:var(--line)}
+.acts{display:flex;gap:6px}
+.acts button{padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+#status{color:var(--pink);min-height:1.4em}
+label{font-size:14px;color:var(--mute)}
+footer{text-align:center;color:var(--mute);padding:20px 16px 32px;font-size:14px}
+</style>
+</head>
+<body>
+<header>
+<span class="logo">Suit Store</span>
+<span><button class="pill alt" id="manage" hidden>Products manage karo</button> <button class="pill" id="open">Cart (<span id="n">0</span>)</button></span>
+</header>
+<section class="hero">
+<h1>Ladies suits, seedha ghar tak</h1>
+<p>Pasand karo, cart mein daalo, aur WhatsApp par order bhejo.</p>
+</section>
+<main class="grid" id="grid"></main>
+<footer>Order WhatsApp par confirm hota hai. Payment: UPI ya COD.</footer>
+
+<div class="drawer" id="drawer">
+<div class="panel" role="dialog" aria-label="Cart">
+<div class="row" style="border:0"><h2>Aapka cart</h2><button class="pill" id="close">Band karo</button></div>
+<div id="items"></div>
+<div class="row"><strong>Total</strong><strong id="total">₹0</strong></div>
+<input class="field" id="name" placeholder="Aapka naam">
+<input class="field" id="addr" placeholder="Pura pata aur pincode">
+<a class="wa" id="wa" href="#" target="_blank" rel="noopener">WhatsApp par order bhejo</a>
+</div>
+</div>
+
+<div class="drawer" id="admin">
+<div class="panel" role="dialog" aria-label="Products manage karo">
+<div class="row" style="border:0"><h2 id="ftitle">Naya product</h2><button class="pill" id="aclose">Band karo</button></div>
+<label for="pn">Product ka naam</label><input class="field" id="pn" placeholder="Jaise: Cotton Printed Suit">
+<label for="pp">Daam (₹)</label><input class="field" id="pp" type="number" inputmode="numeric" min="1">
+<label for="pm">Kati hui MRP (₹), zaroori nahi</label><input class="field" id="pm" type="number" inputmode="numeric" min="1">
+<label for="ps">Sizes (comma se alag karo)</label><input class="field" id="ps" value="M, L, XL, XXL">
+<label for="pf">Photo</label><input class="field" id="pf" type="file" accept="image/*">
+<button class="pill" id="save">Product save karo</button>
+<button class="pill alt" id="cancel" hidden>Edit cancel karo</button>
+<div id="status" role="status"></div>
+<h3>Aapke products</h3>
+<div id="list"></div>
+</div>
+</div>
+
+<script type="application/json" id="data">[]</script>
+<script>
+var WA_NUMBER = "917318518830";
+var P = JSON.parse(document.getElementById("data").textContent);
+var cart = {}, editId = null, armed = null;
+try { cart = JSON.parse(localStorage.getItem("cart") || "{}"); } catch (e) { cart = {}; }
+function save(){ try { localStorage.setItem("cart", JSON.stringify(cart)); } catch (e) {} }
+function $(id){ return document.getElementById(id); }
+function rs(x){ return "₹" + Number(x).toLocaleString("en-IN"); }
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function pimg(x, cls){ return x.img ? '<img class="'+cls+'" src="'+x.img+'" alt="'+esc(x.n)+'">' : '<div class="'+cls+'"></div>'; }
+
+function renderGrid(){
+  $("grid").innerHTML = P.length ? P.map(function(x){
+    return '<article class="card">'+pimg(x,"ph")+'<div class="b"><h3>'+esc(x.n)+'</h3>'+
+    '<div class="price">'+rs(x.p)+(x.m?'<s>'+rs(x.m)+'</s>':'')+'</div>'+
+    '<select id="s'+x.id+'" aria-label="Size">'+x.s.map(function(s){return '<option>'+esc(s)+'</option>';}).join("")+'</select>'+
+    '<button class="add" data-id="'+x.id+'">Cart mein daalo</button></div></article>';
+  }).join("") : '<p class="empty">Abhi koi product nahi hai. Jald hi naye suits aa rahe hain.</p>';
+}
+$("grid").addEventListener("click", function(e){
+  var id = e.target.getAttribute("data-id");
+  if(!id) return;
+  var k = id + "|" + $("s"+id).value;
+  cart[k] = (cart[k] || 0) + 1;
+  save(); render();
+  e.target.textContent = "Add ho gaya";
+  setTimeout(function(){ e.target.textContent = "Cart mein daalo"; }, 900);
+});
+
+function render(){
+  var total = 0, count = 0, lines = [], html = "";
+  Object.keys(cart).forEach(function(k){
+    var a = k.split("|"), x = P.filter(function(q){ return String(q.id) === a[0]; })[0], q = cart[k];
+    if(!x){ delete cart[k]; return; }
+    total += x.p * q; count += q;
+    lines.push(q + " x " + x.n + " (" + a[1] + ") = " + rs(x.p * q));
+    html += '<div class="row"><div>'+esc(x.n)+'<small>Size '+esc(a[1])+' · '+rs(x.p)+'</small></div>'+
+    '<div class="qty"><button data-k="'+esc(k)+'" data-d="-1" aria-label="Kam karo">−</button> '+q+' <button data-k="'+esc(k)+'" data-d="1" aria-label="Badhao">+</button></div></div>';
+  });
+  $("items").innerHTML = html || '<p class="empty">Cart abhi khaali hai.</p>';
+  $("n").textContent = count;
+  $("total").textContent = rs(total);
+  var msg = "Namaste, mujhe ye order karna hai:\n" + lines.join("\n") + "\nTotal: " + rs(total) +
+    "\nNaam: " + $("name").value + "\nPata: " + $("addr").value;
+  $("wa").href = count ? "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(msg) : "#";
+  $("wa").style.opacity = count ? 1 : .5;
+}
+$("items").addEventListener("click", function(e){
+  var k = e.target.getAttribute("data-k");
+  if(!k) return;
+  cart[k] += Number(e.target.getAttribute("data-d"));
+  if(cart[k] <= 0) delete cart[k];
+  save(); render();
+});
+$("name").addEventListener("input", render);
+$("addr").addEventListener("input", render);
+$("open").onclick = function(){ render(); $("drawer").classList.add("open"); };
+$("close").onclick = function(){ $("drawer").classList.remove("open"); };
+
+/* ---- Owner panel ---- */
+function status(t){ $("status").textContent = t; }
+function renderList(){
+  $("list").innerHTML = P.length ? P.map(function(x){
+    return '<div class="row">'+pimg(x,"thumb")+'<div style="flex:1">'+esc(x.n)+'<small>'+rs(x.p)+' · '+esc(x.s.join(", "))+'</small></div>'+
+    '<div class="acts"><button data-edit="'+x.id+'">Badlo</button><button data-del="'+x.id+'">'+(armed===String(x.id)?"Pakka hatao?":"Hatao")+'</button></div></div>';
+  }).join("") : '<p class="empty">Abhi koi product nahi. Upar form bhar ke pehla product daalo.</p>';
+}
+function resetForm(){
+  editId = null; armed = null;
+  ["pn","pp","pm","pf"].forEach(function(i){ $(i).value = ""; });
+  $("ps").value = "M, L, XL, XXL";
+  $("ftitle").textContent = "Naya product"; $("cancel").hidden = true;
+}
+function readImg(f){
+  return new Promise(function(res){
+    var r = new FileReader();
+    r.onload = function(){
+      var im = new Image();
+      im.onload = function(){
+        var s = Math.min(1, 640 / Math.max(im.width, im.height)), c = document.createElement("canvas");
+        c.width = Math.round(im.width * s); c.height = Math.round(im.height * s);
+        c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+        res(c.toDataURL("image/jpeg", .78));
+      };
+      im.onerror = function(){ res(""); };
+      im.src = r.result;
+    };
+    r.readAsDataURL(f);
+  });
+}
+async function commit(list){
+  status("Save ho raha hai...");
+  try {
+    var art = await window.claude.use("artifact");
+    if(!art){ status("Save nahi ho paya. Apne Claude account se is page ko kholo."); return; }
+    var c = document.documentElement.cloneNode(true);
+    c.querySelector("#data").textContent = JSON.stringify(list).replace(/</g, "\\u003c");
+    ["grid","items","list"].forEach(function(id){ c.querySelector("#"+id).innerHTML = ""; });
+    ["drawer","admin"].forEach(function(id){ c.querySelector("#"+id).classList.remove("open"); });
+    c.querySelector("#manage").hidden = true;
+    await art.publish("<!DOCTYPE html>\n" + c.outerHTML);
+  } catch(e){ status("Save nahi ho paya, dobara try karo."); }
+}
+$("save").onclick = async function(){
+  var n = $("pn").value.trim(), p = Number($("pp").value), m = Number($("pm").value) || 0;
+  if(!n || !(p > 0)){ status("Naam aur daam zaroor bharo."); return; }
+  var s = $("ps").value.split(",").map(function(v){ return v.trim(); }).filter(Boolean);
+  if(!s.length) s = ["Free size"];
+  var old = P.filter(function(q){ return q.id === editId; })[0];
+  var img = old ? old.img : "";
+  if($("pf").files[0]) img = await readImg($("pf").files[0]);
+  var item = {id: editId || Date.now(), n: n, p: p, m: m > p ? m : 0, s: s, img: img};
+  var list = editId ? P.map(function(q){ return q.id === editId ? item : q; }) : P.concat([item]);
+  await commit(list);
+};
+$("cancel").onclick = function(){ resetForm(); status(""); renderList(); };
+$("list").addEventListener("click", function(e){
+  var ed = e.target.getAttribute("data-edit"), dl = e.target.getAttribute("data-del");
+  if(ed){
+    var x = P.filter(function(q){ return String(q.id) === ed; })[0];
+    editId = x.id; $("pn").value = x.n; $("pp").value = x.p; $("pm").value = x.m || ""; $("ps").value = x.s.join(", ");
+    $("ftitle").textContent = "Product badlo"; $("cancel").hidden = false;
+    status("Nayi photo na chuno to purani photo rahegi.");
+  }
+  if(dl){
+    if(armed === dl){ commit(P.filter(function(q){ return String(q.id) !== dl; })); }
+    else { armed = dl; renderList(); }
+  }
+});
+$("manage").onclick = function(){ renderList(); $("admin").classList.add("open"); };
+$("aclose").onclick = function(){ $("admin").classList.remove("open"); };
+
+renderGrid(); render();
+(async function(){
+  try {
+    var u = window.claude && await window.claude.use("user");
+    if(u && u.canEdit()) $("manage").hidden = false;
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>
